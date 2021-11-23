@@ -13,7 +13,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { PORT = 3000, MONGO_LINK } = process.env;
 const app = express();
 
-app.use(helmet);
+app.use(helmet());
 app.use(limiter);
 app.use(express.json());
 
