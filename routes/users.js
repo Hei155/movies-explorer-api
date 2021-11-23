@@ -11,8 +11,8 @@ const checkLink = (value) => {
   throw new Error('Неправильный URL');
 };
 
-router.get('/me', getUserInfo);
-router.patch('/me', celebrate({
+router.get('/users/me', getUserInfo);
+router.patch('/users/me', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().custom(checkLink),
     name: Joi.string().required().min(2).max(30),

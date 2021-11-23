@@ -4,7 +4,7 @@ const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user) {
-        res.status(200).send(user);
+        res.send(user);
       } else {
         const e = new Error('Not found');
         e.statusCode = 404;
@@ -34,7 +34,7 @@ const setUserInfo = (req, res, next) => {
   )
     .then((user) => {
       if (user) {
-        res.status(200).send(user);
+        res.send(user);
       } else {
         const e = new Error('Not found');
         e.statusCode = 404;
@@ -45,6 +45,10 @@ const setUserInfo = (req, res, next) => {
       if (err.name === 'CastError') {
         const e = new Error(err);
         e.statusCode(400);
+        next(e);
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        const e = new Error('Данный email уже зарегистрирован');
+        e.statusCode = 409;
         next(e);
       } else {
         const e = new Error('Error!');

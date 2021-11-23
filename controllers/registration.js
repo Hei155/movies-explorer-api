@@ -10,7 +10,8 @@ const createUser = (req, res, next) => {
         email: req.body.email,
       })
         .then((user) => {
-          res.status(201).send(user);
+          const { name, email } = user;
+          res.status(201).send({ name, email });
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {

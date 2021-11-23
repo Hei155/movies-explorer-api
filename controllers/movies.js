@@ -3,7 +3,7 @@ const Movie = require('../models/movie');
 const getMovie = (req, res, next) => {
   Movie.find({})
     .then((movies) => {
-      res.status(200).send(movies);
+      res.send(movies);
     })
     .catch(() => {
       const e = new Error('Error!');
@@ -18,10 +18,11 @@ const setMovie = (req, res, next) => {
     director,
     duration,
     year,
-    discription,
+    description,
     image,
     trailer,
     thumbnail,
+    movieId,
     nameRU,
     nameEN,
   } = req.body;
@@ -31,17 +32,18 @@ const setMovie = (req, res, next) => {
       director,
       duration,
       year,
-      discription,
+      description,
       image,
       trailer,
       thumbnail,
+      movieId,
       owner: req.user._id,
       nameRU,
       nameEN,
     },
   )
     .then((movie) => {
-      res.status(200).send(movie);
+      res.send(movie);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -60,11 +62,21 @@ const deleteMovie = (req, res, next) => {
   Movie.findById(id)
     .then((movie) => {
       if (movie) {
-        const userId = JSON.stringify(req.user._id);
-        const movieOwner = JSON.stringify(movie.owner);
+        const userId = String(req.user._id);
+        const movieOwner = String(movie.owner);
         if (userId === movieOwner) {
           Movie.findByIdAndDelete(id)
-            .then(() => res.status(200).send(movie));
+            .then(() => res.send(movie))
+            .catch((err) => {
+              if (err.name === 'CastError') {
+                const e = new Error(err);
+                e.statusCode = 400;
+                next(e);
+              } else {
+                const e = new Error('Error!');
+                next(e);
+              }
+            });
         } else {
           const e = new Error('Вы не можете удалить фильм другого пользователя');
           e.statusCode = 403;

@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+
 const { JWT_SECRET } = process.env;
 
 const login = (req, res, next) => {
@@ -24,8 +25,11 @@ const login = (req, res, next) => {
                 maxAge: 3600000,
                 httpOnly: true,
               });
-              res.status(200).send({ token });
+              res.send({ token });
             }
+          })
+          .catch((err) => {
+            next(err);
           });
       }
     })
