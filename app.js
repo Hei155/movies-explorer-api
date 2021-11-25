@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { Joi, celebrate, errors } = require('celebrate');
 const helmet = require('helmet');
+require('dotenv').config();
 const limiter = require('./helper/requestLimiter');
 const helper = require('./helper/helper');
 const login = require('./controllers/login');
