@@ -1,8 +1,8 @@
+const { NODE_ENV } = process.env;
+const { JWT_SECRET } = NODE_ENV === 'production' ? process.env : require('../utils/config');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-
-const { JWT_SECRET } = process.env;
 
 const login = (req, res, next) => {
   const { email, password } = req.body;

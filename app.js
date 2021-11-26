@@ -1,3 +1,5 @@
+const { NODE_ENV } = process.env;
+const { PORT = 3000, MONGO_LINK } = NODE_ENV === 'production' ? process.env : require('./utils/config');
 const express = require('express');
 const mongoose = require('mongoose');
 const { Joi, celebrate, errors } = require('celebrate');
@@ -11,7 +13,6 @@ const logout = require('./controllers/logout');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const { PORT = 3000, MONGO_LINK } = process.env;
 const app = express();
 
 app.use(helmet());

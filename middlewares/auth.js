@@ -1,6 +1,6 @@
+const { NODE_ENV } = process.env;
+const { JWT_SECRET } = NODE_ENV === 'production' ? process.env : require('../utils/config');
 const jwt = require('jsonwebtoken');
-
-const { JWT_SECRET } = process.env;
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
