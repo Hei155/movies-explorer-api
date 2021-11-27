@@ -1,5 +1,7 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+const ErrorApi = require('../exception/ErrorApi');
+const errorConfig = require('../utils/errorConfig');
 
 const createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
@@ -17,14 +19,11 @@ const createUser = (req, res, next) => {
           if (err.name === 'ValidationError') {
             const e = new Error(err);
             e.statusCode = 400;
-            next(e);
+            next(ErrorApi.BadRequestError(errorConfig.incorrectUserData));
           } else if (err.name === 'MongoServerError' && err.code === 11000) {
-            const e = new Error('Данный email уже зарегистрирован');
-            e.statusCode = 409;
-            next(e);
+            next(ErrorApi.ConflictError(errorConfig.registrationEmailError));
           } else {
-            const e = new Error('Error!');
-            next(e);
+            next(err);
           }
         });
     });

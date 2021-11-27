@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { Joi, celebrate } = require('celebrate');
 const validator = require('validator');
 const { getMovie, deleteMovie, setMovie } = require('../controllers/movies');
+const auth = require('../middlewares/auth');
 
 const checkLink = (value) => {
   const result = validator.isURL(value);
@@ -11,8 +12,8 @@ const checkLink = (value) => {
   throw new Error('Неправильный URL');
 };
 
-router.get('/movies', getMovie);
-router.post('/movies', celebrate({
+router.get('/movies', auth, getMovie);
+router.post('/movies', auth, celebrate({
   body: Joi.object().keys({
     country: Joi.string().required(),
     director: Joi.string().required(),
@@ -22,14 +23,14 @@ router.post('/movies', celebrate({
     image: Joi.string().required().custom(checkLink),
     trailer: Joi.string().required().custom(checkLink),
     thumbnail: Joi.string().required().custom(checkLink),
-    movieId: Joi.string().hex().required(),
+    movieId: Joi.number().required(),
     nameRU: Joi.string().required(),
     nameEN: Joi.string().required(),
   }),
 }), setMovie);
-router.delete('/movies/:id', celebrate({
+router.delete('/movies/:id', auth, celebrate({
   params: Joi.object().keys({
-    id: Joi.string().length(24).hex().required(),
+    id: Joi.string().required(),
   }),
 }), deleteMovie);
 

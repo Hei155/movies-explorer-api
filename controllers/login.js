@@ -2,6 +2,8 @@ const { NODE_ENV } = process.env;
 const { JWT_SECRET } = NODE_ENV === 'production' ? process.env : require('../utils/config');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const ErrorApi = require('../exception/ErrorApi');
+const errorConfig = require('../utils/errorConfig');
 const User = require('../models/user');
 
 const login = (req, res, next) => {
@@ -9,16 +11,12 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        const e = new Error('Что-то не так с почтой или паролем');
-        e.statusCode = 401;
-        next(e);
+        next(ErrorApi.UnauthorizedError(errorConfig.unauthorizatedError));
       } else {
         bcrypt.compare(password, user.password)
           .then((matched) => {
             if (!matched) {
-              const e = new Error('Что-то не так с почтой или паролем');
-              e.statusCode = 401;
-              next(e);
+              next(ErrorApi.UnauthorizedError(errorConfig.unauthorizatedError));
             } else {
               const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
               res.cookie('jwt', token, {
@@ -35,12 +33,9 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        const e = new Error(err);
-        e.statusCode = 400;
-        next(e);
+        next(ErrorApi.BadRequestError(errorConfig.incorrectUserData));
       } else {
-        const e = new Error('Error!');
-        next(e);
+        next(err);
       }
     });
 };

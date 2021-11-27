@@ -1,24 +1,16 @@
 const User = require('../models/user');
+const ErrorApi = require('../exception/ErrorApi');
+const errorConfig = require('../utils/errorConfig');
 
 const getUserInfo = (req, res, next) => {
   User.findById(req.user._id)
-    .then((user) => {
-      if (user) {
-        res.send(user);
-      } else {
-        const e = new Error('Not found');
-        e.statusCode = 404;
-        next(e);
-      }
-    })
+    .orFail(() => next(ErrorApi.NotFoundError(errorConfig.userError)))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        const e = new Error(err);
-        e.statusCode(400);
-        next(e);
+        next(ErrorApi.NotFoundError(errorConfig.userError));
       } else {
-        const e = new Error('Error!');
-        next(e);
+        next(err);
       }
     });
 };
@@ -32,28 +24,12 @@ const setUserInfo = (req, res, next) => {
     },
     { new: true },
   )
+    .orFail(() => next(ErrorApi.NotFoundError(errorConfig.userError)))
     .then((user) => {
-      if (user) {
-        res.send(user);
-      } else {
-        const e = new Error('Not found');
-        e.statusCode = 404;
-        next(e);
-      }
+      res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        const e = new Error(err);
-        e.statusCode(400);
-        next(e);
-      } else if (err.name === 'MongoServerError' && err.code === 11000) {
-        const e = new Error('Данный email уже зарегистрирован');
-        e.statusCode = 409;
-        next(e);
-      } else {
-        const e = new Error('Error!');
-        next(e);
-      }
+      next(err);
     });
 };
 

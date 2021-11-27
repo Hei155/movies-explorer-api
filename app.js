@@ -2,20 +2,19 @@ const { NODE_ENV } = process.env;
 const { PORT = 3000, MONGO_LINK } = NODE_ENV === 'production' ? process.env : require('./utils/config');
 const express = require('express');
 const mongoose = require('mongoose');
-const { Joi, celebrate, errors } = require('celebrate');
+const { errors } = require('celebrate');
 const helmet = require('helmet');
 require('dotenv').config();
 const limiter = require('./helper/requestLimiter');
 const helper = require('./helper/helper');
-const login = require('./controllers/login');
-const registration = require('./controllers/registration');
-const logout = require('./controllers/logout');
 const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
+const routes = require('./routes/index');
 
 const app = express();
 
 app.use(helmet());
+app.use(requestLogger);
 app.use(limiter);
 app.use(express.json());
 
@@ -23,28 +22,9 @@ mongoose.connect(MONGO_LINK, {
   useNewUrlParser: true,
 });
 
-app.use(requestLogger);
-
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    password: Joi.string().required(),
-    email: Joi.string().required().email(),
-  }),
-}), login);
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    password: Joi.string().required(),
-    email: Joi.string().required().email(),
-  }),
-}), registration);
-
-app.post('/signout', logout);
+app.use(routes);
 
 app.use(auth);
-
-app.use(require('./routes/users'));
-app.use(require('./routes/movies'));
 
 app.use((req, res, next) => {
   const e = new Error('Маршрут не найден');
