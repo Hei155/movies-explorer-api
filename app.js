@@ -7,7 +7,6 @@ const helmet = require('helmet');
 require('dotenv').config();
 const limiter = require('./helper/requestLimiter');
 const helper = require('./helper/helper');
-const auth = require('./middlewares/auth');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const routes = require('./routes/index');
 
@@ -23,8 +22,6 @@ mongoose.connect(MONGO_LINK, {
 });
 
 app.use(routes);
-
-app.use(auth);
 
 app.use((req, res, next) => {
   const e = new Error('Маршрут не найден');
