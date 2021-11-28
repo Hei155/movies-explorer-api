@@ -29,7 +29,10 @@ const setUserInfo = (req, res, next) => {
       res.send(user);
     })
     .catch((err) => {
-      next(err);
+      if (err.name === 'MongoServerError' && err.code === 11000) {
+        return next(ErrorApi.ConflictError(errorConfig.userAlreadyExistError));
+      }
+      return next(err);
     });
 };
 
