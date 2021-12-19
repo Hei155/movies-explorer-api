@@ -9,6 +9,7 @@ const limiter = require('./helper/requestLimiter');
 const helper = require('./helper/helper');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const routes = require('./routes/index');
+const { discriminator } = require('./models/user');
 
 const app = express();
 
